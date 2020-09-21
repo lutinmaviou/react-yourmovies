@@ -6,7 +6,7 @@ export default class FilmDetails extends Component {
         const idFilm = this.props.route.params.idFilm;
         return (
             <View style={styles.main_container}>
-                <Text>Détails du film {idFilm}</Text>
+                <Text>Détails du film avec l'id n° : {idFilm}</Text>
             </View>
         )
     }
