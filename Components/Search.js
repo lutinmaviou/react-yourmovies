@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { StyleSheet, Button, TextInput, View, FlatList, ActivityIndicator } from 'react-native';
-import FilmItem from './FilmItem';
+import { StyleSheet, Button, TextInput, View, ActivityIndicator } from 'react-native';
 import { getFilmsFromApiWithSearchedText } from '../API/TMDBApi';
+import FilmList from './FilmList';
 
 class Search extends Component {
     constructor(props) {
@@ -15,9 +15,9 @@ class Search extends Component {
         }
     }
 
-    _loadFilms() {
-        this.setState({ isLoading: true });
+    _loadFilms = () => {
         if (this.searchedText.length > 0) {
+            this.setState({ isLoading: true });
             getFilmsFromApiWithSearchedText(this.searchedText, this.page + 1)
                 .then(data => {
                     this.page = data.page;
@@ -52,11 +52,6 @@ class Search extends Component {
         }, () => {
             this._loadFilms();
         });
-
-    }
-
-    _displayDetailsForFilm = idFilm => {
-        this.props.navigation.navigate('Détails', { idFilm });
     }
 
     render() {
@@ -68,16 +63,12 @@ class Search extends Component {
                     onSubmitEditing={() => this._searchFilms()}
                     onChangeText={(text) => this._searchedTextInputChanged(text)} />
                 <Button title="Rechercher" onPress={() => { this._searchFilms() }} />
-                <FlatList
-                    data={this.state.films}
-                    keyExtractor={(item) => item.id.toString()}
-                    onEndReachedThreshold={1}
-                    onEndReached={() => {
-                        if (this.page < this.totalPages) {
-                            this._loadFilms()
-                        }
-                    }}
-                    renderItem={({ item }) => <FilmItem film={item} displayDetailsForFilm={this._displayDetailsForFilm} />}
+                <FilmList
+                    films={this.state.films} // C'est bien le component Search qui récupère les films depuis l'API et on les transmet ici pour que le component FilmList les affiche
+                    navigation={this.props.navigation} // Ici on transmet les informations de navigation pour permettre au component FilmList de naviguer vers le détail d'un film
+                    loadFilms={this._loadFilms} // _loadFilm charge les films suivants, ça concerne l'API, le component FilmList va juste appeler cette méthode quand l'utilisateur aura parcouru tous les films et c'est le component Search qui lui fournira les films suivants
+                    page={this.page}
+                    totalPages={this.totalPages} // les infos page et totalPages vont être utile, côté component FilmList, pour ne pas déclencher l'évènement pour charger plus de film si on a atteint la dernière page
                 />
                 {this._displayLoading()}
             </View>

@@ -1,35 +1,51 @@
-// Components/FilmItem.js
-
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, Image, TouchableOpacity, Animated, Dimensions } from 'react-native';
+//import Animated from 'react-native-reanimated';
 import { getImageFromApi } from '../API/TMDBApi';
+import SlideInLeft from '../Animations/SlideInLeft';
 
 class FilmItem extends Component {
+
+    _displayFavoriteImage() {
+        if (this.props.isFilmFavorite) {
+            // Si la props isFilmFavorite vaut true, on affiche le 🖤
+            return (
+                <Image
+                    style={styles.favorite_image}
+                    source={require('../Images/plein-heart.png')}
+                />
+            )
+        }
+    }
+
     render() {
         const { film, displayDetailsForFilm } = this.props;
         return (
-            <TouchableOpacity
-                style={styles.main_container}
-                onPress={() => displayDetailsForFilm(film.id)}
-            >
-                <Image
-                    style={styles.image}
-                    source={{ uri: getImageFromApi(film.poster_path) }}
-                />
-                <View style={styles.content_container}>
-                    <View style={styles.header_container}>
-                        <Text style={styles.title_text}>{film.title}</Text>
-                        <Text style={styles.vote_text}>{film.vote_average}</Text>
+            <SlideInLeft>
+                <TouchableOpacity
+                    style={styles.main_container}
+                    onPress={() => displayDetailsForFilm(film.id)}
+                >
+                    <Image
+                        style={styles.image}
+                        source={{ uri: getImageFromApi(film.poster_path) }}
+                    />
+                    <View style={styles.content_container}>
+                        <View style={styles.header_container}>
+                            {this._displayFavoriteImage()}
+                            <Text style={styles.title_text}>{film.title}</Text>
+                            <Text style={styles.vote_text}>{film.vote_average}</Text>
+                        </View>
+                        <View style={styles.description_container}>
+                            <Text style={styles.description_text} numberOfLines={6}>{film.overview}</Text>
+                            {/* La propriété numberOfLines permet de couper un texte si celui-ci est trop long, il suffit de définir un nombre maximum de ligne */}
+                        </View>
+                        <View style={styles.date_container}>
+                            <Text style={styles.date_text}>{film.release_date}</Text>
+                        </View>
                     </View>
-                    <View style={styles.description_container}>
-                        <Text style={styles.description_text} numberOfLines={6}>{film.overview}</Text>
-                        {/* La propriété numberOfLines permet de couper un texte si celui-ci est trop long, il suffit de définir un nombre maximum de ligne */}
-                    </View>
-                    <View style={styles.date_container}>
-                        <Text style={styles.date_text}>{film.release_date}</Text>
-                    </View>
-                </View>
-            </TouchableOpacity>
+                </TouchableOpacity>
+            </SlideInLeft>
         )
     }
 }
@@ -78,7 +94,13 @@ const styles = StyleSheet.create({
     date_text: {
         textAlign: 'right',
         fontSize: 14
+    },
+    favorite_image: {
+        width: 25,
+        height: 25,
+        marginRight: 5,
+        marginTop: 5
     }
 })
 
-export default FilmItem
+export default FilmItem;
